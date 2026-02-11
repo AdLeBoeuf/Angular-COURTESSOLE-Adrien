@@ -1,24 +1,79 @@
-﻿## Séquence 3 — Lazy Loading & Composants dynamiques
+﻿## Séquence 4 — Tests Unitaires Angular
 
-### 1. Le Lazy Loading
-Le Lazy Loading c'est une technique qui permet de ne pas charger toute l'application dès le début. Au lieu de ça, on charge les parties de l'app seulement quand on en a besoin. Résultat : l'application démarre beaucoup plus vite.
+        ### 📚 Ce que j'ai appris
 
-Dans mon projet, j'ai appliqué ça sur les routes `/tasks` et `/about` avec la fonction `loadChildren()`. Quand l'utilisateur clique sur une de ces pages, Angular va chercher les fichiers nécessaires à ce moment-là, pas avant.
+        #### 1. Pourquoi tester ?
+        - Les tests permettent de détecter les erreurs avant la mise en production et de documenter le comportement attendu du code
+        - Sans tests, le risque est d'introduire des régressions lors de modifications et de perdre confiance dans la stabilité de l'application
+        - Exemple concret : Lors de la correction du test AppComponent, l'erreur "No provider for ActivatedRoute" a été détectée immédiatement grâce aux tests, ce qui aurait causé un crash en production
 
-### 2. Structure avec features/
-J'ai organisé mon projet avec un dossier `features/` où chaque fonctionnalité a son propre espace. Par exemple, tout ce qui concerne les tâches est dans `features/tasks/`, et tout ce qui concerne la page About est dans `features/about/`.
+        #### 2. Outils utilisés
+        - **Jasmine** : Framework de test qui fournit les fonctions describe(), it(), expect() pour écrire et structurer les tests
+        - **Karma** : Test runner qui exécute les tests dans des navigateurs réels (Chrome, ChromeHeadless) et génère les rapports de couverture
+        - **TestBed** : Utilitaire Angular pour configurer et créer un environnement de test qui simule le module Angular
 
-Cette organisation rend le code plus clair et plus facile à maintenir. Chaque feature regroupe ses composants, ses services et ses routes au même endroit. Et ça se combine parfaitement avec le Lazy Loading parce que chaque feature peut être chargée indépendamment.
+        #### 3. Concepts clés maîtrisés
+        - **AAA Pattern** : Arrange, Act, Assert - Structure pour organiser les tests : préparer les données, exécuter l'action, vérifier le résultat
+        - **Mocks** : Objets simulés qui remplacent les dépendances réelles pour isoler le code testé
+        - **Spies** : Fonctions Jasmine qui permettent d'observer et de contrôler le comportement des méthodes (espionner les appels, retourner des valeurs fictives)
+        - **Fixture & detectChanges()** : La fixture est l'environnement de test du composant. detectChanges() déclenche la détection de changements pour mettre à jour le DOM, essentiel pour tester les liaisons de données
 
-### 3. Les composants dynamiques
-Un composant dynamique, c'est un composant qui n'existe pas tout le temps dans la page. Il est créé au moment où on en a besoin, puis il peut être détruit après utilisation. C'est très pratique pour afficher des choses temporaires.
+        #### 4. Types de tests pratiqués
+        - ✅ Test d'une classe simple (sans Angular)
+        - ✅ Test d'un service
+        - ✅ Test d'un composant avec TestBed
+        - ✅ Test des @Input
+        - ✅ Test des @Output
+        - ✅ Test du DOM
 
-J'ai utilisé cette technique pour les composants `TaskHighlight` et `TaskEdit`. Quand on clique sur "Mettre en avant" ou "Éditer", le composant apparaît dynamiquement dans la page, puis il disparaît quand on le ferme.
+        #### 5. Erreurs courantes rencontrées
+        - Oublier `detectChanges()` : Le DOM n'est pas mis à jour et les tests qui vérifient le rendu échouent avec des valeurs undefined
+        - `No provider for...` : Ajouter les providers nécessaires dans TestBed.configureTestingModule() (ex: provideRouter([]) pour les composants utilisant le routeur)
+        - Tests qui dépendent les uns des autres : Utiliser beforeEach() pour réinitialiser l'état entre chaque test et éviter les effets de bord
 
-### 4. ViewContainerRef et createComponent()
-`ViewContainerRef` représente un conteneur dans le DOM où on peut injecter des composants de façon dynamique. On le récupère avec le décorateur `@ViewChild`.
+        #### 6. Commandes importantes
+        ```bash
+        ng test                    # Lancer les tests
+        ng test --code-coverage    # Avec rapport de couverture
+        ```
 
-La méthode `createComponent()` permet de créer un composant et de l'insérer dans ce conteneur. Une fois créé, on peut :
-- Lui passer des valeurs via les propriétés `@Input()`
-- Écouter ses événements via les `@Output()`
-- Le supprimer du DOM avec `container.clear()`
+        #### 7. Code Coverage atteint
+        - Objectif : 70-80%
+        - Mon résultat : **75%** sur TaskBoard Pro
+
+        #### 8. Difficultés rencontrées et solutions
+        | Difficulté | Solution trouvée |
+        |------------|------------------|
+        | Erreur NullInjectorError avec ActivatedRoute | Ajout de provideRouter([]) dans les providers du TestBed |
+        | Test du DOM échouant | Modification du test pour vérifier le contenu réel du template (navigation) au lieu d'un h1 inexistant |
+        | Génération du rapport de couverture | Configuration de karma.conf.js avec le reporter 'coverage' et ChromeHeadlessCI |
+
+        #### 9. Points à approfondir
+        - [ ] Tests d'intégration
+        - [ ] Tests E2E avec Cypress
+        - [ ] Mocking avancé pour HttpClient
+        - [ ] Tests de services asynchrones
+
+        ### 🎯 Projet : Tests TaskBoard Pro
+
+        #### Tests implémentés
+        - [x] TaskService
+        - ✅ `addTask()`
+        - ✅ `deleteTask()`
+        - ✅ `getTasks()`
+        - [x] TaskHighlight Component
+        - ✅ Affichage du titre
+        - ✅ @Input title
+        - ✅ Rendu dans le DOM
+
+        #### Résultats
+        - **Tests réussis** : 12 / 12
+        - **Code coverage** : 75%
+        - **Temps d'exécution** : 0.29 secondes
+
+        ### 💡 Réflexion personnelle 
+        Le plus utile a été d'apprendre à configurer correctement le TestBed avec les providers nécessaires et 
+        à comprendre le cycle de vie des tests (beforeEach, fixture, detectChanges). Les tests permettent non seulement 
+        de détecter les bugs rapidement, mais aussi de documenter le comportement attendu du code. Dans mes futurs projets, 
+        je compte écrire les tests en parallèle du développement plutôt qu'après du coup et viser systématiquement 
+        une couverture de code d'au moins 70% pour garantir la qualitédu code.
