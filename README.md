@@ -1,6 +1,6 @@
 ﻿## Séquence 4 — Tests Unitaires Angular
 
-        ### 📚 Ce que j'ai appris
+        ### Ce que j'ai appris
 
         #### 1. Pourquoi tester ?
         - Les tests permettent de détecter les erreurs avant la mise en production et de documenter le comportement attendu du code
