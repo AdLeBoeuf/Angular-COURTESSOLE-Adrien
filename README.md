@@ -1,29 +1,24 @@
-﻿## Séquence 2 – Logique réactive du flux de données
+﻿## Séquence 3 — Lazy Loading & Composants dynamiques
 
-### 1. Comprendre le BehaviorSubject
-- **BehaviorSubject** = un "tuyau" qui diffuse des données en continu
-- Contrairement à un simple tableau, il **push** automatiquement les changements
-- Chaque modification déclenche une notification vers tous les abonnés
-- Le service `TaskService` maintient une source de vérité unique
+### 1. Le Lazy Loading
+Le Lazy Loading c'est une technique qui permet de ne pas charger toute l'application dès le début. Au lieu de ça, on charge les parties de l'app seulement quand on en a besoin. Résultat : l'application démarre beaucoup plus vite.
 
-### 2. Le pipe async dans le template
-- `| async` s'abonne automatiquement à l'Observable dans le HTML
-- Gère le cycle de vie : pas besoin de `subscribe()` / `unsubscribe()` manuel
-- Évite les fuites mémoire et simplifie le code du composant
-- La vue se met à jour toute seule quand les données changent
+Dans mon projet, j'ai appliqué ça sur les routes `/tasks` et `/about` avec la fonction `loadChildren()`. Quand l'utilisateur clique sur une de ces pages, Angular va chercher les fichiers nécessaires à ce moment-là, pas avant.
 
-### 3. Le circuit complet : Service → Composant → Vue
-1. **Service** : `addTask()` ou `removeTask()` modifie le tableau
-2. **Service** : Appelle `.next()` pour diffuser la nouvelle version
-3. **Composant** : Expose `tasks$` comme Observable public
-4. **Template** : Utilise `*ngFor` avec `tasks$ | async`
-5. **Résultat** : La vue se rafraîchit instantanément sans rechargement
+### 2. Structure avec features/
+J'ai organisé mon projet avec un dossier `features/` où chaque fonctionnalité a son propre espace. Par exemple, tout ce qui concerne les tâches est dans `features/tasks/`, et tout ce qui concerne la page About est dans `features/about/`.
 
-### 4. Ce que j'ai retenu
-- Les données sont **réactives** : elles "poussent" les changements au lieu d'être "tirées"
-- Plus besoin de faire des `getTasks()` en boucle
-- Le flux unidirectionnel garantit la cohérence des données
-- C'est la base de la programmation réactive avec RxJS dans Angular
+Cette organisation rend le code plus clair et plus facile à maintenir. Chaque feature regroupe ses composants, ses services et ses routes au même endroit. Et ça se combine parfaitement avec le Lazy Loading parce que chaque feature peut être chargée indépendamment.
 
-### 4. problème
-- N'étant pas présent au cours, je n'ai pas réelement compris l'attentu de la séquence 2. J'ai bien compris le côté réactif mais je ne sais pas quoi ajouter à mon projet. Je n'ai pas vu de page "🛠️ TP - Démarrage du fil rouge" comme dans la séquence 1 par exemple. 
+### 3. Les composants dynamiques
+Un composant dynamique, c'est un composant qui n'existe pas tout le temps dans la page. Il est créé au moment où on en a besoin, puis il peut être détruit après utilisation. C'est très pratique pour afficher des choses temporaires.
+
+J'ai utilisé cette technique pour les composants `TaskHighlight` et `TaskEdit`. Quand on clique sur "Mettre en avant" ou "Éditer", le composant apparaît dynamiquement dans la page, puis il disparaît quand on le ferme.
+
+### 4. ViewContainerRef et createComponent()
+`ViewContainerRef` représente un conteneur dans le DOM où on peut injecter des composants de façon dynamique. On le récupère avec le décorateur `@ViewChild`.
+
+La méthode `createComponent()` permet de créer un composant et de l'insérer dans ce conteneur. Une fois créé, on peut :
+- Lui passer des valeurs via les propriétés `@Input()`
+- Écouter ses événements via les `@Output()`
+- Le supprimer du DOM avec `container.clear()`
